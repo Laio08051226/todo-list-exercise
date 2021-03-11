@@ -28,6 +28,7 @@ app.set('view engine', 'hbs')
 
 app.use(bodyParser.urlencoded({ extended: true }))
 
+//根目錄localhost:3000
 app.get('/', (req, res) => {
     Todo.find() // 取出Todo model 裡的所有資料
     .lean()
@@ -36,14 +37,46 @@ app.get('/', (req, res) => {
     .catch(error => console.error(error)) //錯誤處理
 })
 
+//新建內容
 app.get('/todos/new', (req, res) => {
     return res.render('new')
 })
 
+//新建資料並寫入資料庫
 app.post('/todos', (req ,res) => {
     const name = req.body.name // 從 req.body 拿出
     return Todo.create({ name }) // 存入資料庫
     .then(() => res.redirect('/')) // 新增完成後導回首頁
+    .catch(error => console.log(error))
+})
+
+//查看單筆資料
+app.get('/todos/:id', (req, res) => {
+    const id = req.params.id
+    return Todo.findById(req.params.id)
+    .lean()
+    // .then((todo) => console.log(todo))
+    .then((todo) => res.render('detail', { todo }))
+    .catch(error => console.log(error))
+})
+
+app.get('/todos/:id/edit' , (req, res) => {
+    const id = req.params.id
+    return Todo.findById(id)
+    .lean()
+    .then((todo) => res.render('edit', { todo }))
+    .catch(error => console.log(error))
+})
+
+app.post('/todos/:id/edit', (req, res) => {
+    const id = req.params.id
+    const name = req.body.name
+    return Todo.findById(id)
+    .then(todo => {
+        todo.name = name
+        return todo.save()
+    })
+    .then(() => res.redirect(`/todos/${id}`))
     .catch(error => console.log(error))
 })
 
