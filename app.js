@@ -32,6 +32,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.get('/', (req, res) => {
     Todo.find() // 取出Todo model 裡的所有資料
     .lean()
+    .sort({ _id: 'asc' }) // 根據 _id 升冪排序, 反之用 desc
     .then(todos => res.render('index', { todos: todos })) //渲染樣板，並把資料傳給樣板
     // res.render('index')
     .catch(error => console.error(error)) //錯誤處理
@@ -60,6 +61,7 @@ app.get('/todos/:id', (req, res) => {
     .catch(error => console.log(error))
 })
 
+//單筆資料編輯頁面
 app.get('/todos/:id/edit' , (req, res) => {
     const id = req.params.id
     return Todo.findById(id)
