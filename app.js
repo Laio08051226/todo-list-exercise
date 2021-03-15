@@ -71,10 +71,11 @@ app.get('/todos/:id/edit' , (req, res) => {
 //修改單筆資料，並存回資料庫
 app.post('/todos/:id/edit', (req, res) => {
     const id = req.params.id
-    const name = req.body.name
+    const { name, isDone } = req.body
     return Todo.findById(id)
     .then(todo => {
         todo.name = name
+        todo.isDone = isDone === 'on' //先判斷是否嚴格等於'on'，則會回傳true並存回todo.isDone裡面
         return todo.save()
     })
     .then(() => res.redirect(`/todos/${id}`))
