@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose') // 載入 mongoose
 const exphbs = require('express-handlebars')
 const bodyParser = require('body-parser')
+const methodOverride = require('method-override')
 const Todo = require('./models/todo') // 載入Todo model
 const app = express();
 const port = 3000;
@@ -27,12 +28,13 @@ app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }))
 app.set('view engine', 'hbs')
 
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(methodOverride('_method'))
 
 //根目錄localhost:3000
 app.get('/', (req, res) => {
     Todo.find() // 取出Todo model 裡的所有資料
     .lean()
-    .sort({ _id: 'asc' }) // 根據 _id 升冪排序, 反之用 desc
+    .sort({ _id: 'asc' }) // 根據 _id 升冪排序, 反之用 desc00
     .then(todos => res.render('index', { todos: todos })) //渲染樣板，並把資料傳給樣板
     // res.render('index')
     .catch(error => console.error(error)) //錯誤處理
@@ -71,7 +73,7 @@ app.get('/todos/:id/edit' , (req, res) => {
 })
 
 //修改單筆資料，並存回資料庫
-app.post('/todos/:id/edit', (req, res) => {
+app.put('/todos/:id', (req, res) => {
     const id = req.params.id
     const { name, isDone } = req.body
     return Todo.findById(id)
@@ -84,7 +86,7 @@ app.post('/todos/:id/edit', (req, res) => {
     .catch(error => console.log(error))
 })
 
-app.post('/todos/:id/delete', (req, res) => {
+app.delete('/todos/:id', (req, res) => {
     const id = req.params.id
     return Todo.findById(id)
     .then((todo) => todo.remove())
